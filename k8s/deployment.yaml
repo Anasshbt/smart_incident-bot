@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smart-incident-bot
+  labels:
+    app: smart-incident-bot
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: smart-incident-bot
+  template:
+    metadata:
+      labels:
+        app: smart-incident-bot
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/q/metrics"
+    spec:
+      containers:
+      - name: smart-incident-bot
+        image: ${ACR_NAME}.azurecr.io/smart-incident-bot:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: QUARKUS_PROFILE
+          value: "prod"
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              name: smart-incident-bot-secrets
+              key: postgres-url
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: smart-incident-bot-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smart-incident-bot-secrets
+              key: postgres-password
+        envFrom:
+        - configMapRef:
+            name: smart-incident-bot-config
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /q/health/ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /q/health/live
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smart-incident-bot
+  labels:
+    app: smart-incident-bot
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: smart-incident-bot
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smart-incident-bot-external
+  labels:
+    app: smart-incident-bot
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: smart-incident-bot

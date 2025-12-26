@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smart-incident-bot-config
+  labels:
+    app: smart-incident-bot
+data:
+  # Application Configuration
+  QUARKUS_HTTP_PORT: "8080"
+  QUARKUS_HTTP_CORS: "true"
+  
+  # Logging Configuration
+  QUARKUS_LOG_CONSOLE_ENABLE: "true"
+  QUARKUS_LOG_CONSOLE_LEVEL: "INFO"
+  
+  # Anomaly Detection Thresholds
+  APP_DETECTION_ERROR_RATE_THRESHOLD: "5.0"
+  APP_DETECTION_LATENCY_THRESHOLD_MS: "2000"
+  APP_DETECTION_CPU_THRESHOLD_PERCENT: "90.0"
+  APP_DETECTION_MEMORY_THRESHOLD_PERCENT: "85.0"
+  APP_DETECTION_POD_RESTART_THRESHOLD: "3"
+  APP_DETECTION_CHECK_INTERVAL_SECONDS: "30"
+  
+  # Alerting Configuration
+  APP_ALERTING_ENABLED: "true"
+  APP_ALERTING_WEBHOOK_URL: "http://alerting-service.default.svc.cluster.local/webhook"
