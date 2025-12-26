@@ -523,16 +523,8 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 <br>
 
-**Built with ❤️ using**
 
-<img src="https://quarkus.io/assets/images/quarkus_logo_horizontal_rgb_reverse.svg" alt="Quarkus" height="50">
 
-<br><br>
-
-*Supersonic Subatomic Java*
-
----
-
-<sub>© 2024 Smart Incident Bot Team</sub>
+<sub>© 2026 Smart Incident Bot </sub>
 
 </div>
